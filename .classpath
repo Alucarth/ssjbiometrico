@@ -7,6 +7,6 @@
 			<attribute name="module" value="true"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry kind="lib" path="C:/Users/Aluca/Desktop/biometrico/ssjbiometrico/lib/json-simple-1.1.jar"/>
+	<classpathentry kind="lib" path="C:/Users/rafael.pineda/Documents/David Torrez/ssjbiometrico/lib/json-simple-1.1.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

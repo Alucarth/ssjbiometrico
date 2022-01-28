@@ -7,6 +7,7 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
 import java.io.IOException;
+import java.util.Base64;
 
 import javax.imageio.ImageIO;
 import javax.swing.ButtonGroup;
@@ -239,6 +240,7 @@ public class ZKFPDemo extends JFrame{
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
+				System.out.println("evento btnEnroll lanzado");
 				if(0 == mhDevice)
 				{
 					textArea.setText("Please Open device first!\n");
@@ -257,6 +259,7 @@ public class ZKFPDemo extends JFrame{
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
+				System.out.println("evento btnVerify lanzado");
 				if(0 == mhDevice)
 				{
 					textArea.setText("Please Open device first!\n");
@@ -278,6 +281,7 @@ public class ZKFPDemo extends JFrame{
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
+				System.out.println("evento btnIdentify lanzado");
 				if(0 == mhDevice)
 				{
 					textArea.setText("Please Open device first!\n");
@@ -297,9 +301,10 @@ public class ZKFPDemo extends JFrame{
 		
 		
 		btnRegImg.addActionListener(new ActionListener() {
-
+			
 			@Override
 			public void actionPerformed(ActionEvent e) {
+				System.out.println("evento btnRegImg lanzado");
 				if(0 == mhDB)
 				{
 					textArea.setText("Please open device first!\n");
@@ -339,6 +344,7 @@ public class ZKFPDemo extends JFrame{
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
+				System.out.println("evento btnIdentImg lanzado");
 				if(0 ==  mhDB)
 				{
 					textArea.setText("Please open device first!\n");
@@ -406,6 +412,7 @@ public class ZKFPDemo extends JFrame{
 	
 	private void FreeSensor()
 	{
+		System.out.println("evento freesensor lanzado");
 		mbStop = true;
 		try {		//wait for thread stopping
 			Thread.sleep(1000);
@@ -525,6 +532,8 @@ public class ZKFPDemo extends JFrame{
 	            	templateLen[0] = 2048;
 	            	if (0 == (ret = FingerprintSensorEx.AcquireFingerprint(mhDevice, imgbuf, template, templateLen)))
 	            	{
+	            		
+	            		System.out.println("entrando al hilo  lanzado");
 	            		if (nFakeFunOn == 1)
                     	{
                     		byte[] paramValue = new byte[4];
@@ -541,6 +550,17 @@ public class ZKFPDemo extends JFrame{
             					return;
             				}
                     	}
+	            		System.out.println("convirtiendo imagen");
+	            		/*
+	            		 * nofunciona debido a que se produce errores verificar su funcionamiento
+	            		try {
+	            			String base64 = Base64.getEncoder().encodeToString(imgbuf);
+		            		System.out.println(base64);
+						} catch (Exception e) {
+							// TODO: handle exception
+						}*/
+	            		
+	            		//System.out.println((String) Base64.getEncoder().encodeToString(imgbuf));
                     	OnCatpureOK(imgbuf);
                     	OnExtractOK(template, templateLen[0]);
 	            	}
@@ -556,8 +576,10 @@ public class ZKFPDemo extends JFrame{
 		
 		private void OnCatpureOK(byte[] imgBuf)
 		{
+			
 			try {
 				writeBitmap(imgBuf, fpWidth, fpHeight, "fingerprint.bmp");
+				
 				btnImg.setIcon(new ImageIcon(ImageIO.read(new File("fingerprint.bmp"))));
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
@@ -590,7 +612,7 @@ public class ZKFPDemo extends JFrame{
                 	int[] _retLen = new int[1];
                     _retLen[0] = 2048;
                     byte[] regTemp = new byte[_retLen[0]];
-                    
+                  
                     if (0 == (ret = FingerprintSensorEx.DBMerge(mhDB, regtemparray[0], regtemparray[1], regtemparray[2], regTemp, _retLen)) &&
                     		0 == (ret = FingerprintSensorEx.DBAdd(mhDB, iFid, regTemp))) {
                     	iFid++;

@@ -1,6 +1,8 @@
 package com.zkteco.biometric;
 
 import java.awt.Color;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
@@ -17,6 +19,7 @@ import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 
 
+
 public class RegistroInnaj extends JFrame{
 
 	JButton btnOpen = null;
@@ -30,6 +33,9 @@ public class RegistroInnaj extends JFrame{
 	JTextField textBuscar;
 	private JTextArea textArea;
 	private JTextArea textInnaj;
+	
+	private Innaj innaj;
+	private Rest rest;
 	
 	//the width of fingerprint image
 		int fpWidth = 0;
@@ -69,6 +75,8 @@ public class RegistroInnaj extends JFrame{
 		JFrame.setDefaultLookAndFeelDecorated(true); 
 		this.setLayout (null);
 		int nRsize = 20;
+		rest = new Rest();
+		
 		lblInnaj = new JLabel("Codigo Innaj");
 		this.add(lblInnaj);
 		lblInnaj.setBounds(30, 10 + nRsize, 140, 30);
@@ -117,6 +125,114 @@ public class RegistroInnaj extends JFrame{
 		textArea.setLineWrap(true);
 		textArea.setSelectedTextColor(Color.RED);
 		
+		//evento click de los botones
+		btnBuscar.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				// TODO Auto-generated method stub
+				System.out.println("Inciando Busqueda");
+				String idInnaj ="";
+				idInnaj =(String) textBuscar.getText();
+				
+				innaj = new Innaj();
+				//consumiendo web service
+				innaj.parseJSON((String) rest.GetRestful(Rest.URL, Rest.INNAJ+idInnaj));
+				
+				if(innaj.getName() != null)
+				{
+					String detalle = "Nombre: "+innaj.getName()+" \n";
+					detalle += "Apodo:" +innaj.getApodo()+" \n";
+					detalle += "CI:"+innaj.getCi();
+					textInnaj.setText(detalle);
+				}else
+				{
+					textInnaj.setText("No se encontro datos del Innaj");
+				}
+				
+				
+				
+			}
+		});
+		
+		btnOpen.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				// TODO Auto-generated method stub
+				if (0 != mhDevice)
+				{
+					//already inited
+					textArea.setText("Please close device first!\n");
+					return;
+				}
+				int ret = FingerprintSensorErrorCode.ZKFP_ERR_OK;
+				//Initialize
+				cbRegTemp = 0;
+				bRegister = false;
+				bIdentify = false;
+				iFid = 1;
+				enroll_idx = 0;
+				if (FingerprintSensorErrorCode.ZKFP_ERR_OK != FingerprintSensorEx.Init())
+				{
+					textArea.setText("Inico Fallido!\n");
+					return;
+				}
+				ret = FingerprintSensorEx.GetDeviceCount();
+				if (ret < 0)
+				{
+					textArea.setText("No hay Dispositivos Conectados!\n");
+					FreeSensor();
+					return;
+				}
+				if (0 == (mhDevice = FingerprintSensorEx.OpenDevice(0)))
+				{
+					textArea.setText("Fallo al conectar con el dispositivo, ret = " + ret + "!\n");
+					FreeSensor();
+					return;
+				}
+				if (0 == (mhDB = FingerprintSensorEx.DBInit()))
+				{
+					textArea.setText("Init DB fail, ret = " + ret + "!\n");
+					FreeSensor();
+					return;
+				}
+				
+				//For ISO/Ansi
+				int nFmt = 0;	//Ansi
+				/*if (radioISO.isSelected())
+				{
+					nFmt = 1;	//ISO
+				}*/
+				FingerprintSensorEx.DBSetParameter(mhDB,  5010, nFmt);				
+				//For ISO/Ansi End
+				
+				//set fakefun off
+				//FingerprintSensorEx.SetParameter(mhDevice, 2002, changeByte(nFakeFunOn), 4);
+				
+				byte[] paramValue = new byte[4];
+				int[] size = new int[1];
+				//GetFakeOn
+				//size[0] = 4;
+				//FingerprintSensorEx.GetParameters(mhDevice, 2002, paramValue, size);
+				//nFakeFunOn = byteArrayToInt(paramValue);
+				
+				size[0] = 4;
+				FingerprintSensorEx.GetParameters(mhDevice, 1, paramValue, size);
+				fpWidth = byteArrayToInt(paramValue);
+				size[0] = 4;
+				FingerprintSensorEx.GetParameters(mhDevice, 2, paramValue, size);
+				fpHeight = byteArrayToInt(paramValue);
+								
+				imgbuf = new byte[fpWidth*fpHeight];
+				//btnImg.resize(fpWidth, fpHeight);
+				mbStop = false;
+				workThread = new WorkThread();
+			    workThread.start();// 线程启动
+				textArea.setText("Open succ! Finger Image Width:" + fpWidth + ",Height:" + fpHeight +"\n");
+			}
+		});
+	
 		
 		this.setSize(520, 620);
 		this.setLocationRelativeTo(null);
