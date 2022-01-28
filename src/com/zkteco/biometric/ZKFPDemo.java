@@ -13,8 +13,11 @@ import javax.swing.ButtonGroup;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JRadioButton;
 import javax.swing.JTextArea;
+import javax.swing.UIManager;
+import javax.swing.UnsupportedLookAndFeelException;
 
 public class ZKFPDemo extends JFrame{
 	/**
@@ -71,6 +74,7 @@ public class ZKFPDemo extends JFrame{
 	private WorkThread workThread = null;
 	
 	public void launchFrame(){
+		JFrame.setDefaultLookAndFeelDecorated(true); 
 		this.setLayout (null);
 		btnOpen = new JButton("Open");  
 		this.add(btnOpen);  
@@ -642,6 +646,31 @@ public class ZKFPDemo extends JFrame{
 		}
 		
 		public static void main(String[] args) {
-			new ZKFPDemo().launchFrame();
+			
+		    try {
+	            // Set System L&F
+		        UIManager.setLookAndFeel(
+		            UIManager.getSystemLookAndFeelClassName());
+		    	
+		    } 
+		    catch (UnsupportedLookAndFeelException e) {
+		       // handle exception
+		    }
+		    catch (ClassNotFoundException e) {
+		       // handle exception
+		    }
+		    catch (InstantiationException e) {
+		       // handle exception
+		    }
+		    catch (IllegalAccessException e) {
+		       // handle exception
+		    }
+
+			ZKFPDemo zk = new ZKFPDemo();
+			zk.launchFrame();
+			Rest rest = new Rest();
+			Innaj innaj = new Innaj();
+			innaj.parseJSON((String) rest.GetRestful(Rest.URL, Rest.INNAJ+'1'));
+			zk.textArea.setText("Nombre: "+innaj.name+  "\n");
 		}
 }

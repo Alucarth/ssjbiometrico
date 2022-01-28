@@ -5,11 +5,13 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 public class Rest {
 
-	public static String URL="http://localhost/";
-	public static String INNAJ = "innaj";
+	public static String URL="http://ssjv1.test/api/";
+	public static String INNAJ = "buscar_innaj/";
 	
-	public void GetRestful(String domain, String route)
+	public String GetRestful(String domain, String route)
 	{
+		String output ="";
+		 StringBuilder builder = new StringBuilder();
 		try {
 
             URL url = new URL(domain+route);//your url i.e fetch data from .
@@ -22,14 +24,17 @@ public class Rest {
             }
             InputStreamReader in = new InputStreamReader(conn.getInputStream());
             BufferedReader br = new BufferedReader(in);
-            String output;
+            
             while ((output = br.readLine()) != null) {
                 System.out.println(output);
+                builder.append(output);
             }
             conn.disconnect();
 
         } catch (Exception e) {
             System.out.println("Exception in NetClientGet:- " + e);
         }
+		
+		return builder.toString();
 	}
 }
