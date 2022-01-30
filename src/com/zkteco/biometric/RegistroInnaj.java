@@ -279,7 +279,7 @@ public class RegistroInnaj extends JFrame{
 							public void run ()
 							{
 								System.out.println("consumiendo respuesta");
-								System.out.println(rest.getRespuesta());
+								textArea.setText(rest.getRespuesta());
 							}
 						};
 //						System.out.print(Innaj.toJson(innaj).toString());
