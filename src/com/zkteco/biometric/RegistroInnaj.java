@@ -6,7 +6,10 @@ import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.nio.file.Paths;
 
 import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
@@ -17,6 +20,8 @@ import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
+
+import org.apache.commons.codec.binary.Base64;
 
 
 
@@ -69,10 +74,13 @@ public class RegistroInnaj extends JFrame{
 		private long mhDevice = 0;
 		private long mhDB = 0;
 		private WorkThread workThread = null;
+		
+		private String imageString;
 	
 	public void IniciarPrograma()
 	{
 		JFrame.setDefaultLookAndFeelDecorated(true); 
+		innaj = new Innaj();
 		this.setLayout (null);
 		int nRsize = 20;
 		rest = new Rest();
@@ -105,10 +113,10 @@ public class RegistroInnaj extends JFrame{
 		this.add(btnEnroll);  
 		btnEnroll.setBounds(30, 260 + nRsize, 140, 30);
 		
-		btnVerify = new JButton("Verificar");  
-		this.add(btnVerify);  
-		btnVerify.setBounds(30, 290 + nRsize, 140, 30);
-		
+//		btnVerify = new JButton("Verificar");  
+//		this.add(btnVerify);  
+//		btnVerify.setBounds(30, 290 + nRsize, 140, 30);
+//		
 		btnClose = new JButton("Desconectar");  
 		this.add(btnClose);  
 		btnClose.setBounds(30, 320 + nRsize, 140, 30);
@@ -131,26 +139,29 @@ public class RegistroInnaj extends JFrame{
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				// TODO Auto-generated method stub
-				System.out.println("Inciando Busqueda");
-				String idInnaj ="";
-				idInnaj =(String) textBuscar.getText();
 				
-				innaj = new Innaj();
-				//consumiendo web service
-				innaj.parseJSON((String) rest.GetRestful(Rest.URL, Rest.INNAJ+idInnaj));
-				
-				if(innaj.getName() != null)
-				{
-					String detalle = "Nombre: "+innaj.getName()+" \n";
-					detalle += "Apodo:" +innaj.getApodo()+" \n";
-					detalle += "CI:"+innaj.getCi();
-					textInnaj.setText(detalle);
-				}else
-				{
-					textInnaj.setText("No se encontro datos del Innaj");
-				}
-				
-				
+					System.out.println("Inciando Busqueda");
+					String idInnaj ="";
+					idInnaj =(String) textBuscar.getText();
+					
+					
+						//consumiendo web service
+						rest.GetRestful(Rest.URL, Rest.INNAJ+idInnaj);
+//						innaj = rest.getInnaj();
+						innaj.parseJSON(rest.getResponse());
+				   
+					if(innaj.getName() != null)
+					{
+						String detalle = "Nombre: "+innaj.getName()+" \n";
+						detalle += "Apodo:" +innaj.getApodo()+" \n";
+						detalle += "CI:"+innaj.getCi();
+						textInnaj.setText(detalle);
+					}else
+					{
+						textInnaj.setText("No se encontro datos del Innaj");
+					}
+//				
+			   
 				
 			}
 		});
@@ -232,8 +243,44 @@ public class RegistroInnaj extends JFrame{
 				textArea.setText("Open succ! Finger Image Width:" + fpWidth + ",Height:" + fpHeight +"\n");
 			}
 		});
-	
 		
+		btnEnroll.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				System.out.println("evento btnEnroll lanzado");
+				if(0 == mhDevice)
+				{
+					textArea.setText("Por favor Conect el dispositivo primero!\n");
+					return;
+				}
+				
+				if(innaj.getId() != null)
+				{
+					if(imageString != "")
+					{
+						innaj.setFingerprint(imageString);
+						
+//						textArea.setText(rest.PosRestful(Rest.URL,Rest.INNAJ_FINGER,Innaj.toJson(innaj).toString()));
+						
+					}else {
+						textArea.setText("Coloque su huella en el disposito!\n");
+					}
+					
+				}
+			}
+		});
+		
+		btnClose.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				// TODO Auto-generated method stub
+				FreeSensor();
+				
+				textArea.setText("Se Desconecto el Dispositivo!\n");
+			}
+		});
 		this.setSize(520, 620);
 		this.setLocationRelativeTo(null);
 		this.setVisible(true);
@@ -304,7 +351,34 @@ public class RegistroInnaj extends JFrame{
         				}
                 	}
                 	OnCatpureOK(imgbuf);
-                	OnExtractOK(template, templateLen[0]);
+//                	OnExtractOK(template, templateLen[0]);
+                	FileInputStream fis;
+					try {
+						System.out.println("iniciando metodo de conversion 64");
+						String path =  Paths.get("fingerprint.bmp").toAbsolutePath().toString();
+						File f = new File(path); //change path of image according to you
+						fis = new FileInputStream(f);
+						byte byteArray[] = new byte[(int)f.length()];
+                    	fis.read(byteArray);
+                    	
+                    	imageString = Base64.encodeBase64String(byteArray);
+                    	
+//                    	if(innaj.getId()!= null)
+//                    	{
+//                    		innaj.setFingerprint(imageString);
+//                    	}
+//                    	textArea.setText(imageString);
+//                    	
+//                    	System.out.println(imageString);
+                    	fis.close();
+					} catch (FileNotFoundException e) {
+						
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					} catch (IOException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
             	}
                 try {
                     Thread.sleep(500);

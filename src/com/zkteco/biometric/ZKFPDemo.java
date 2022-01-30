@@ -6,8 +6,11 @@ import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.util.Base64;
+import java.nio.file.Paths;
+import org.apache.commons.codec.binary.Base64;
 
 import javax.imageio.ImageIO;
 import javax.swing.ButtonGroup;
@@ -309,7 +312,10 @@ public class ZKFPDemo extends JFrame{
 				{
 					textArea.setText("Please open device first!\n");
 				}
-				String path = "d:\\test\\fingerprint.bmp";
+				
+				//String path = "d:\\test\\fingerprint.bmp";
+				String path =  Paths.get("fingerprint.bmp").toAbsolutePath().toString();
+				System.out.println(path);
 				byte[] fpTemplate = new byte[2048];
 				int[] sizeFPTemp = new int[1];
 				sizeFPTemp[0] = 2048;
@@ -349,7 +355,9 @@ public class ZKFPDemo extends JFrame{
 				{
 					textArea.setText("Please open device first!\n");
 				}
-				String path = "d:\\test\\fingerprint.bmp";
+				//String path = "d:\\test\\fingerprint.bmp";
+				String path =  Paths.get("fingerprint.bmp").toAbsolutePath().toString();
+				
 				byte[] fpTemplate = new byte[2048];
 				int[] sizeFPTemp = new int[1];
 				sizeFPTemp[0] = 2048;
@@ -397,7 +405,9 @@ public class ZKFPDemo extends JFrame{
 				}
 			}
 		});
+		//cargando datos
 	
+		
 		
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		this.addWindowListener(new WindowAdapter(){
@@ -561,8 +571,37 @@ public class ZKFPDemo extends JFrame{
 						}*/
 	            		
 	            		//System.out.println((String) Base64.getEncoder().encodeToString(imgbuf));
-                    	OnCatpureOK(imgbuf);
+                    	OnCatpureOK(imgbuf); // hasta aqui se creo la imagen bmp
+                    	
+                    	
+                    	
+                    	
+                    	
+                    	
+                    	
                     	OnExtractOK(template, templateLen[0]);
+                    	FileInputStream fis;
+						try {
+							System.out.println("iniciando metodo de conversion 64");
+							String path =  Paths.get("fingerprint.bmp").toAbsolutePath().toString();
+							File f = new File(path); //change path of image according to you
+							fis = new FileInputStream(f);
+							byte byteArray[] = new byte[(int)f.length()];
+	                    	fis.read(byteArray);
+	                    	
+	                    	String imageString = Base64.encodeBase64String(byteArray);
+	                    	textArea.setText(imageString);
+	                    	
+//	                    	System.out.println(imageString);
+	                    	fis.close();
+						} catch (FileNotFoundException e) {
+							
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						} catch (IOException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
 	            	}
 	                try {
 	                    Thread.sleep(500);
@@ -690,9 +729,9 @@ public class ZKFPDemo extends JFrame{
 
 			ZKFPDemo zk = new ZKFPDemo();
 			zk.launchFrame();
-			Rest rest = new Rest();
-			Innaj innaj = new Innaj();
-			innaj.parseJSON((String) rest.GetRestful(Rest.URL, Rest.INNAJ+'1'));
-			zk.textArea.setText("Nombre: "+innaj.name+  "\n");
+//			Rest rest = new Rest();
+//			Innaj innaj = new Innaj();
+//			innaj.parseJSON((String) rest.GetRestful(Rest.URL, Rest.INNAJ+'1'));
+//			zk.textArea.setText("Nombre: "+innaj.name+  "\n");
 		}
 }

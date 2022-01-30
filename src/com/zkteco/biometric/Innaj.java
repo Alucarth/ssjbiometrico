@@ -3,7 +3,8 @@ import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.*;
 
-public class Innaj {
+public class Innaj  {
+	public String id;
 	public String name;
 	public String apodo;
 	public String gender;
@@ -13,6 +14,7 @@ public class Innaj {
 	public String company;
 	public String birthday;
 	public String condition;
+	public String fingerprint;
 	
 	public void parseJSON(String jsonText)
 	{
@@ -21,7 +23,7 @@ public class Innaj {
 			
 			Object obj = parser.parse(jsonText);
 			JSONObject jo = (JSONObject) obj;
-			
+			this.setId((String) jo.get("id"));
 			this.setName((String) jo.get("name"));
 			this.setApodo((String) jo.get("apodo"));
 			this.setCi((String) jo.get("ci"));
@@ -31,7 +33,36 @@ public class Innaj {
 		}
 	}
 	
+	public static JSONObject toJson(Innaj innaj)
+	{
+		 JSONObject obj = new JSONObject();
+		 if(innaj!=null) {
+			 
+			 obj.put("id", innaj.getId()); 
+		 }
+	        
+	    return obj;
+	}
 	
+	
+	
+	public String getId() {
+		return id;
+	}
+
+	public void setId(String id) {
+		this.id = id;
+	}
+	
+	
+	public String getFingerprint() {
+		return fingerprint;
+	}
+
+	public void setFingerprint(String fingerprint) {
+		this.fingerprint = fingerprint;
+	}
+
 	public String getApodo() {
 		return apodo;
 	}
