@@ -23,7 +23,7 @@ public class Innaj  {
 			
 			Object obj = parser.parse(jsonText);
 			JSONObject jo = (JSONObject) obj;
-			this.setId((String) jo.get("id"));
+			this.setId(""+jo.get("id"));
 			this.setName((String) jo.get("name"));
 			this.setApodo((String) jo.get("apodo"));
 			this.setCi((String) jo.get("ci"));
@@ -39,6 +39,7 @@ public class Innaj  {
 		 if(innaj!=null) {
 			 
 			 obj.put("id", innaj.getId()); 
+			 obj.put("fingerprint", innaj.getFingerprint());
 		 }
 	        
 	    return obj;

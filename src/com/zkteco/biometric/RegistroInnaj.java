@@ -144,22 +144,34 @@ public class RegistroInnaj extends JFrame{
 					String idInnaj ="";
 					idInnaj =(String) textBuscar.getText();
 					
-					
+						
 						//consumiendo web service
-						rest.GetRestful(Rest.URL, Rest.INNAJ+idInnaj);
-//						innaj = rest.getInnaj();
-						innaj.parseJSON(rest.getResponse());
+						rest = new Rest();
+						Thread t;
+						t = new Thread() {
+							public void run()
+							{
+								System.out.println("comenzando a consumir respuesta");
+								System.out.println("respuesta: "+rest.getRespuesta());
+								innaj = new Innaj();
+								innaj.parseJSON(rest.getRespuesta());
+								if(innaj.getName() != null)
+								{
+									String detalle = "Nombre: "+innaj.getName()+" \n";
+									detalle += "Apodo:" +innaj.getApodo()+" \n";
+									detalle += "CI:"+innaj.getCi()+" \n";
+									detalle += "id:"+innaj.getId();
+									textInnaj.setText(detalle);
+								}else
+								{
+									textInnaj.setText("No se encontro datos del Innaj");
+								}
+							}
+						};
+						rest.EnviarGet(1, idInnaj,t );
+						rest.start();
 				   
-					if(innaj.getName() != null)
-					{
-						String detalle = "Nombre: "+innaj.getName()+" \n";
-						detalle += "Apodo:" +innaj.getApodo()+" \n";
-						detalle += "CI:"+innaj.getCi();
-						textInnaj.setText(detalle);
-					}else
-					{
-						textInnaj.setText("No se encontro datos del Innaj");
-					}
+					
 //				
 			   
 				
@@ -255,13 +267,25 @@ public class RegistroInnaj extends JFrame{
 					return;
 				}
 				
-				if(innaj.getId() != null)
+				if(innaj.getName() != null)
 				{
 					if(imageString != "")
 					{
 						innaj.setFingerprint(imageString);
-						
-//						textArea.setText(rest.PosRestful(Rest.URL,Rest.INNAJ_FINGER,Innaj.toJson(innaj).toString()));
+//						textArea.setText(innaj.getFingerprint());
+						rest = new Rest();
+						Thread t;
+						t =  new Thread() {
+							public void run ()
+							{
+								System.out.println("consumiendo respuesta");
+								System.out.println(rest.getRespuesta());
+							}
+						};
+//						System.out.print(Innaj.toJson(innaj).toString());
+						rest.EnviarPost(2,Innaj.toJson(innaj).toString() , t);
+						rest.start();
+
 						
 					}else {
 						textArea.setText("Coloque su huella en el disposito!\n");

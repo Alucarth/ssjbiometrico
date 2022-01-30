@@ -4,21 +4,35 @@ import java.io.DataOutputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
-public class Rest {
+public class Rest extends Thread {
 
 	public static String URL="http://ssjv1.test/api/";
 	public static String INNAJ = "buscar_innaj/";
 	public static String INNAJ_FINGER = "registrar_huella";
 	
+	private final int BUSCAR_INNAJ = 1;
+	private final int REGISTRAR_HUELLA = 2;
+	
 	private String response;
 	private Innaj innaj;
 	
+	private boolean corriendo = true;
+	private Thread t;
+	private int id;
+	private String parametros;
+	private String Respuesta=null;
 //	public Rest(Innaj innaj){
 //		this.innaj = innaj;
 //	}
 //	
+	public void EnviarGet(int id, String parametros, Thread t)
+	{
+		this.id = id;
+		this.parametros = parametros;
+		this.t = t;
+	}
 	
-	public  void GetRestful(String domain, String route)
+	public  void GetRestful(String domain, String route) throws Exception
 	{
 		String output ="";
 		 StringBuilder builder = new StringBuilder();
@@ -39,9 +53,9 @@ public class Rest {
 //                System.out.println(output);
                 builder.append(output);
             }
-            System.out.print(builder.toString());
-            this.innaj = new Innaj();
-            this.innaj.parseJSON(builder.toString());
+            this.Respuesta = builder.toString();
+//            setResponse(builder.toString());
+    		System.out.println(this.Respuesta);
             conn.disconnect();
 
         } catch (Exception e) {
@@ -53,6 +67,12 @@ public class Rest {
 		
 	}
 	
+	public void EnviarPost(int id, String parametros, Thread t)
+	{
+		this.id = id;
+		this.parametros = parametros;
+		this.t = t;
+	}
 	public void PosRestful(String domain, String route, String urlParameters)
 	 { 
 	 
@@ -63,8 +83,10 @@ public class Rest {
 	            byte[] postData       = urlParameters.getBytes();
 	            int    postDataLength = postData.length;
 	    //        String request        = "http://example.com/index.php";
+	            System.out.println("ruta: "+domain+route );
 	            URL url= new URL( domain+route );
 	            HttpURLConnection con= (HttpURLConnection) url.openConnection();
+	            con.setDoOutput(true);
 //	            String basicAuth = "Basic " + new String(Base64.encode((user + ":" + pass).getBytes(), Base64.NO_WRAP));
 //	            con.setRequestProperty("Authorization", basicAuth);
 	            con.setConnectTimeout(30000);
@@ -94,6 +116,11 @@ public class Rest {
 //	                System.out.println(output);
 	                builder.append(output);
 	            }
+	            
+	            this.Respuesta = builder.toString();
+//	            setResponse(builder.toString());
+	    		System.out.println(this.Respuesta);
+	            
 	            con.disconnect();
 
 	            
@@ -102,6 +129,7 @@ public class Rest {
 	        	 System.out.println("Exception in NetClientGet:- " + e);
 	        }
 	        this.setResponse(builder.toString());
+	       
 	}
 
 	public String getResponse() {
@@ -119,6 +147,52 @@ public class Rest {
 	public void setInnaj(Innaj innaj) {
 		this.innaj = innaj;
 	}
+	
+	public String getRespuesta() {
+		return Respuesta;
+	}
+
+	public void setRespuesta(String respuesta) {
+		Respuesta = respuesta;
+	}
+
+	public void run()
+	{
+		
+			
+	               
+	                Enviar();
+	               
+//	                rest.setRespuesta(this.Respuesta);
+//	                rest.setCodigoRespuesta(respCode);
+//	                t.notify();
+	                
+	                t.start();
+		
+	}
+	
+	private void Enviar()
+    {
+		try {
+			
+			  switch (id) {
+			  	case BUSCAR_INNAJ:
+				  GetRestful(URL, INNAJ+parametros);
+				  
+				break;
+				
+			  	case REGISTRAR_HUELLA:
+			  		PosRestful(URL, INNAJ_FINGER, parametros);
+
+				default:
+					break;
+				}
+		} catch (Exception e) {
+			// TODO: handle exception
+		}
+	
+    }
+	
 	
 	
 }
