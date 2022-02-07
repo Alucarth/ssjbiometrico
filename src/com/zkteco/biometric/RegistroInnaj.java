@@ -85,7 +85,7 @@ public class RegistroInnaj extends JFrame{
 		int nRsize = 20;
 		rest = new Rest();
 		
-		lblInnaj = new JLabel("Codigo Innaj");
+		lblInnaj = new JLabel("Child Number");
 		this.add(lblInnaj);
 		lblInnaj.setBounds(30, 10 + nRsize, 140, 30);
 		
